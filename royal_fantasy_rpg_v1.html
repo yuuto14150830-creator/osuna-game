@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>精霊石の冒険 - 王道ファンタジーRPG</title>
+<style>
+:root{
+  --bg:#0e1420; --panel:#172235; --panel2:#20314a; --text:#f4f7fb; --muted:#a8b4c7;
+  --accent:#ffd166; --good:#7bd389; --danger:#ff6b6b; --mana:#6cb4ff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:linear-gradient(#0b1320,#15253a);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100%;overscroll-behavior:none}
+body{display:flex;justify-content:center;padding:10px}
+#app{width:min(100%,760px)}
+.topbar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.title{font-weight:900;letter-spacing:.03em;font-size:clamp(18px,4vw,26px)}
+.smallbtn{border:0;border-radius:10px;padding:8px 12px;background:#293a56;color:white;font-weight:800}
+.status{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.card{background:rgba(23,34,53,.94);border:1px solid #324866;border-radius:12px;padding:9px 10px;box-shadow:0 5px 14px #0005}
+.statline{font-size:13px;color:var(--muted)}
+.value{font-weight:900;color:white}
+.bar{height:7px;background:#0b1019;border-radius:999px;overflow:hidden;margin-top:4px}
+.fill{height:100%;width:50%;transition:width .2s}
+.hp{background:var(--good)} .mp{background:var(--mana)} .xp{background:var(--accent)}
+#gameWrap{position:relative;background:#0a0f17;border:2px solid #314760;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px #0008}
+#world{display:grid;grid-template-columns:repeat(18,1fr);aspect-ratio:18/12;width:100%;touch-action:none;user-select:none}
+.tile{position:relative;display:flex;align-items:center;justify-content:center;font-size:clamp(13px,3.4vw,27px);line-height:1}
+.grass{background:#567d46}.path{background:#a8895d}.water{background:#3e7ea5}.wall{background:#4e5967}.floor{background:#75624b}.village{background:#9a815e}.cave{background:#3f3b44}.bossfloor{background:#5f3b3b}
+.tile::after{content:"";position:absolute;inset:0;border:1px solid rgba(0,0,0,.06)}
+.player{filter:drop-shadow(0 2px 1px #000);transform:scale(1.14);z-index:3}
+#message{margin-top:8px;min-height:68px;font-size:14px;line-height:1.5}
+#message b{color:var(--accent)}
+.controls{display:grid;grid-template-columns:150px 1fr;gap:10px;margin-top:10px;align-items:end}
+.dpad{width:150px;height:150px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);gap:5px}
+.ctrl{border:0;border-radius:14px;background:#263a57;color:white;font-size:25px;font-weight:900;box-shadow:inset 0 -3px #142235,0 4px 12px #0005;touch-action:manipulation}
+.ctrl:active{transform:translateY(2px);box-shadow:inset 0 -1px #142235}
+.up{grid-column:2}.left{grid-row:2;grid-column:1}.down{grid-row:2;grid-column:2}.right{grid-row:2;grid-column:3}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.action{border:0;border-radius:14px;padding:17px 8px;background:#29405f;color:white;font-size:16px;font-weight:900;box-shadow:inset 0 -3px #17263b,0 4px 12px #0005}
+.action.primary{background:#7a5f24}.action.danger{background:#6c2f36}
+#overlay{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;padding:15px;z-index:20}
+.modal{width:min(100%,560px);background:#142033;border:2px solid #395474;border-radius:18px;padding:16px;box-shadow:0 20px 60px #000c}
+.enemyName{font-size:22px;font-weight:900}.enemyEmoji{font-size:76px;text-align:center;margin:8px 0}
+.battleBars{display:grid;gap:8px}.battleMenu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.battleBtn{border:0;border-radius:12px;padding:14px;background:#29405f;color:white;font-weight:900;font-size:16px}
+.battleBtn:disabled{opacity:.45}
+#battleLog{background:#0c1522;border-radius:10px;padding:10px;min-height:74px;font-size:14px;line-height:1.45;margin-top:10px;color:#dfe8f5}
+.quest{margin-top:8px;font-size:13px;color:#d6e0ef}.quest.done{color:#9ce3a4}
+.legend{margin-top:7px;font-size:12px;color:#aab8cb}
+@media (max-width:520px){
+ body{padding:6px}.status{grid-template-columns:1fr 1fr}.status .wide{grid-column:1/-1}
+ .controls{grid-template-columns:132px 1fr}.dpad{width:132px;height:132px}.action{padding:15px 6px;font-size:14px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar"><div class="title">⚔️ 精霊石の冒険</div><button id="resetBtn" class="smallbtn">最初から</button></div>
+  <div class="status">
+    <div class="card"><div class="statline">LV <span id="lv" class="value">1</span>　💰 <span id="gold" class="value">0</span>G</div><div class="bar"><div id="xpBar" class="fill xp"></div></div><div class="statline">EXP <span id="xpText"></span></div></div>
+    <div class="card"><div class="statline">HP <span id="hpText" class="value"></span></div><div class="bar"><div id="hpBar" class="fill hp"></div></div></div>
+    <div class="card wide"><div class="statline">MP <span id="mpText" class="value"></span>　🧪薬草 <span id="herb" class="value">2</span></div><div class="bar"><div id="mpBar" class="fill mp"></div></div></div>
+  </div>
+
+  <div id="gameWrap"><div id="world"></div></div>
+  <div id="message" class="card">村長に話しかけてみよう。近づいて「話す / 調べる」を押してね。</div>
+  <div id="quest" class="card quest">📜 目的：村長から話を聞く</div>
+  <div class="controls">
+    <div class="dpad">
+      <button class="ctrl up" data-dir="up">▲</button><button class="ctrl left" data-dir="left">◀</button><button class="ctrl down" data-dir="down">▼</button><button class="ctrl right" data-dir="right">▶</button>
+    </div>
+    <div class="actions">
+      <button id="interactBtn" class="action primary">💬 話す / 調べる</button>
+      <button id="healBtn" class="action">🧪 薬草</button>
+      <button id="saveBtn" class="action">💾 セーブ</button>
+      <button id="helpBtn" class="action danger">❔ 遊び方</button>
+    </div>
+  </div>
+  <div class="legend">PC：矢印/WASDで移動、Spaceで話す　｜　スマホ：画面下のボタン操作</div>
+</div>
+
+<div id="overlay">
+  <div class="modal">
+    <div id="enemyName" class="enemyName"></div>
+    <div id="enemyEmoji" class="enemyEmoji"></div>
+    <div class="battleBars">
+      <div><div class="statline">敵HP <span id="enemyHpText"></span></div><div class="bar"><div id="enemyHpBar" class="fill hp"></div></div></div>
+      <div><div class="statline">あなた HP <span id="battleHpText"></span> / MP <span id="battleMpText"></span></div></div>
+    </div>
+    <div id="battleLog"></div>
+    <div class="battleMenu">
+      <button id="atkBtn" class="battleBtn">⚔️ 攻撃</button>
+      <button id="fireBtn" class="battleBtn">🔥 ファイア 3MP</button>
+      <button id="healMagicBtn" class="battleBtn">✨ ヒール 4MP</button>
+      <button id="runBtn" class="battleBtn">🏃 逃げる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+const W=18,H=12,SAVE_KEY='royal_fantasy_rpg_v1';
+const $=id=>document.getElementById(id);
+const world=$('world'),msg=$('message'),quest=$('quest'),overlay=$('overlay');
+const interactBtn=$('interactBtn'),healBtn=$('healBtn'),saveBtn=$('saveBtn'),helpBtn=$('helpBtn'),resetBtn=$('resetBtn');
+const atkBtn=$('atkBtn'),fireBtn=$('fireBtn'),healMagicBtn=$('healMagicBtn'),runBtn=$('runBtn');
+const ui={lv:$('lv'),gold:$('gold'),hpText:$('hpText'),mpText:$('mpText'),herb:$('herb'),xpBar:$('xpBar'),hpBar:$('hpBar'),mpBar:$('mpBar'),xpText:$('xpText'),
+ enemyName:$('enemyName'),enemyEmoji:$('enemyEmoji'),enemyHpText:$('enemyHpText'),enemyHpBar:$('enemyHpBar'),battleHpText:$('battleHpText'),battleMpText:$('battleMpText'),battleLog:$('battleLog')};
+
+const map=[
+'WWWWWWWWWWWWWWWWWW',
+'WVVVVPPGGGGGGGGGGW',
+'WVVVVPPGGGGGGGGGGW',
+'WVVVVPPGGGGGGGGGGW',
+'WVVVVPPGGGGGGGGGGW',
+'WPPPPPPGGGGGGGGGGW',
+'WGGGGGGGGGGCWWWWWW',
+'WGGGGGGGGGGCFFFFFW',
+'WGGGGGGGGGGCFFFFFW',
+'WGGGGGGGGGGCFFFFBW',
+'WGGGGGGGGGGWWWWWWW',
+'WWWWWWWWWWWWWWWWWW'
+];
+
+const objects={
+ '2,2':{type:'npc',emoji:'👴',name:'村長'},
+ '4,4':{type:'npc',emoji:'🧙‍♀️',name:'魔法使いリナ'},
+ '7,2':{type:'sign',emoji:'🪧',text:'東の草原の先に、魔物の洞窟がある。'},
+ '11,6':{type:'entrance',emoji:'🕳️',name:'洞窟入口'},
+ '16,9':{type:'boss',emoji:'👹',name:'オーガキング'},
+ '3,3':{type:'chest',emoji:'🎁',name:'村の宝箱'}
+};
+
+let state={x:3,y:5,dir:'up',lv:1,xp:0,gold:0,maxHp:30,hp:30,maxMp:12,mp:12,atk:7,herb:2,quest:0,bossDefeated:false,chestOpened:false};
+let battle=null;
+
+function tileClass(c){return ({G:'grass',P:'path',V:'village',W:'wall',C:'cave',F:'floor',B:'bossfloor'})[c]||'grass'}
+function passable(x,y){if(x<0||y<0||x>=W||y>=H)return false; return !['W'].includes(map[y][x]);}
+function objAt(x,y){return objects[`${x},${y}`]}
+
+function render(){
+ world.innerHTML='';
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+   const d=document.createElement('div'); d.className='tile '+tileClass(map[y][x]);
+   const o=objAt(x,y); if(o){if(o.type==='boss'&&state.bossDefeated){} else if(o.type==='chest'&&state.chestOpened){d.textContent='📦'} else d.textContent=o.emoji;}
+   if(x===state.x&&y===state.y){d.innerHTML=`<span class="player">🧝‍♂️</span>`;}
+   world.appendChild(d);
+ }
+ updateUI();
+}
+function updateUI(){
+ ui.lv.textContent=state.lv;ui.gold.textContent=state.gold;ui.herb.textContent=state.herb;
+ ui.hpText.textContent=`${state.hp}/${state.maxHp}`;ui.mpText.textContent=`${state.mp}/${state.maxMp}`;
+ const need=xpNeed();ui.xpText.textContent=`${state.xp}/${need}`;
+ ui.hpBar.style.width=`${state.hp/state.maxHp*100}%`;ui.mpBar.style.width=`${state.mp/state.maxMp*100}%`;ui.xpBar.style.width=`${state.xp/need*100}%`;
+ const qs=['村長から話を聞く','草原を抜けて洞窟へ向かう','洞窟の奥でオーガキングを倒す','村長に報告する','クリア！ 精霊石を取り戻した'];
+ quest.textContent='📜 目的：'+qs[state.quest]; quest.classList.toggle('done',state.quest===4);
+}
+function say(t){msg.innerHTML=t;}
+function xpNeed(){return 18+state.lv*12}
+function gainXp(n){state.xp+=n;while(state.xp>=xpNeed()){state.xp-=xpNeed();state.lv++;state.maxHp+=7;state.maxMp+=3;state.atk+=2;state.hp=state.maxHp;state.mp=state.maxMp;say(`✨ <b>レベルアップ！ LV${state.lv}</b> になった。HPとMPが全回復！`);}}
+function move(dx,dy,dir){if(battle)return;state.dir=dir;const nx=state.x+dx,ny=state.y+dy;if(!passable(nx,ny))return;
+ const o=objAt(nx,ny); if(o&&['npc','sign','boss','chest'].includes(o.type) && !(o.type==='boss'&&state.bossDefeated) && !(o.type==='chest'&&state.chestOpened)) return;
+ state.x=nx;state.y=ny;
+ if(['C','F','B'].includes(map[ny][nx]) && state.quest===1){state.quest=2;say('🕳️ <b>魔物の洞窟に入った。</b> 奥に精霊石を奪った魔物がいる……。');}
+ render();
+ if(map[ny][nx]==='G' && Math.random()<0.16 && state.quest>=1) startRandomBattle();
+ if(map[ny][nx]==='F' && Math.random()<0.18 && !state.bossDefeated) startRandomBattle(true);
+}
+function front(){const ds={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};const [dx,dy]=ds[state.dir];return [state.x+dx,state.y+dy];}
+function interact(){if(battle)return;const [x,y]=front(),o=objAt(x,y);if(!o){say('特に何もない。');return;}
+ if(o.type==='npc'&&o.name==='村長'){
+   if(state.quest===0){state.quest=1;say('👴 村長「東の洞窟に住み着いた<b>オーガキング</b>が、村の精霊石を奪った。取り戻してくれ！」');}
+   else if(state.quest===3){state.quest=4;state.gold+=100;state.herb+=3;say('🎉 村長「精霊石が戻った！ありがとう、勇者よ！」<br><b>ゲームクリア！</b> 報酬100Gと薬草3個をもらった。');}
+   else if(state.quest===4)say('👴 村長「この村の英雄として、君の名は語り継がれるだろう。」');
+   else say('👴 村長「どうか精霊石を取り戻してくれ。」');
+ }
+ else if(o.type==='npc'&&o.name==='魔法使いリナ'){state.mp=state.maxMp;say('🧙‍♀️ リナ「魔力を回復してあげる！」 MPが全回復した。');}
+ else if(o.type==='sign')say('🪧 '+o.text);
+ else if(o.type==='chest'){
+   if(state.chestOpened)say('宝箱は空だ。'); else {state.chestOpened=true;state.herb+=2;state.gold+=20;say('🎁 宝箱から<b>薬草×2 と 20G</b>を手に入れた！');render();}
+ }
+ else if(o.type==='boss'){
+   if(state.quest<1){say('👹 まだここへ来る理由はなさそうだ。');return;}
+   if(!state.bossDefeated)startBattle({name:'オーガキング',emoji:'👹',maxHp:95,hp:95,atk:12,xp:55,gold:80,boss:true});
+ }
+ updateUI(); autoSave();
+}
+
+function startRandomBattle(cave=false){
+ const pool=cave?
+ [{name:'洞窟コウモリ',emoji:'🦇',maxHp:22,atk:7,xp:14,gold:8},{name:'ゴブリン戦士',emoji:'👺',maxHp:30,atk:9,xp:18,gold:12}]:
+ [{name:'スライム',emoji:'🟢',maxHp:16,atk:5,xp:9,gold:5},{name:'ゴブリン',emoji:'👺',maxHp:24,atk:7,xp:13,gold:8},{name:'ウルフ',emoji:'🐺',maxHp:28,atk:8,xp:15,gold:10}];
+ const e={...pool[Math.floor(Math.random()*pool.length)]};e.hp=e.maxHp;startBattle(e);
+}
+function startBattle(e){battle=e;overlay.style.display='flex';ui.battleLog.textContent=`${e.name}が現れた！`;updateBattleUI();}
+function updateBattleUI(){if(!battle)return;ui.enemyName.textContent=battle.name;ui.enemyEmoji.textContent=battle.emoji;ui.enemyHpText.textContent=`${Math.max(0,battle.hp)}/${battle.maxHp}`;ui.enemyHpBar.style.width=`${Math.max(0,battle.hp)/battle.maxHp*100}%`;ui.battleHpText.textContent=`${state.hp}/${state.maxHp}`;ui.battleMpText.textContent=`${state.mp}/${state.maxMp}`;fireBtn.disabled=state.mp<3;healMagicBtn.disabled=state.mp<4;runBtn.disabled=!!battle.boss;}
+function playerDamage(base){return Math.max(1,Math.floor(base*(0.85+Math.random()*.3)));}
+function enemyTurn(){if(!battle)return;const dmg=playerDamage(battle.atk);state.hp=Math.max(0,state.hp-dmg);ui.battleLog.innerHTML+=`<br>${battle.name}の攻撃！ ${dmg}ダメージ。`;updateBattleUI();if(state.hp<=0){setTimeout(gameOver,450);}}
+function actAttack(){if(!battle)return;const dmg=playerDamage(state.atk+state.lv);battle.hp-=dmg;ui.battleLog.innerHTML=`⚔️ 攻撃！ ${dmg}ダメージ。`;afterPlayer();}
+function actFire(){if(!battle||state.mp<3)return;state.mp-=3;const dmg=playerDamage(11+state.lv*3);battle.hp-=dmg;ui.battleLog.innerHTML=`🔥 ファイア！ ${dmg}ダメージ。`;afterPlayer();}
+function actHeal(){if(!battle||state.mp<4)return;state.mp-=4;const heal=12+state.lv*3;state.hp=Math.min(state.maxHp,state.hp+heal);ui.battleLog.innerHTML=`✨ ヒール！ HPが${heal}回復した。`;enemyTurn();}
+function afterPlayer(){updateBattleUI();if(battle&&battle.hp<=0){winBattle();}else enemyTurn();}
+function winBattle(){const e=battle;ui.battleLog.innerHTML+=`<br>🎉 ${e.name}を倒した！ EXP${e.xp} / ${e.gold}G獲得。`;state.gold+=e.gold;gainXp(e.xp);if(e.boss){state.bossDefeated=true;state.quest=3;ui.battleLog.innerHTML+=`<br>💎 <b>精霊石を取り戻した！ 村長のもとへ戻ろう。</b>`;}
+ setTimeout(()=>{battle=null;overlay.style.display='none';render();autoSave();},850);
+}
+function runAway(){if(!battle||battle.boss)return;if(Math.random()<0.7){ui.battleLog.textContent='🏃 うまく逃げ切った！';setTimeout(()=>{battle=null;overlay.style.display='none';render();},450);}else{ui.battleLog.textContent='逃げられなかった！';enemyTurn();}}
+function gameOver(){ui.battleLog.innerHTML+='<br>💀 倒れてしまった……村へ戻された。';setTimeout(()=>{battle=null;overlay.style.display='none';state.x=3;state.y=5;state.hp=state.maxHp;state.mp=state.maxMp;state.gold=Math.max(0,state.gold-10);say('💫 村で目を覚ました。所持金を10G失った。');render();autoSave();},900);}
+function useHerb(){if(battle)return;if(state.herb<=0){say('薬草を持っていない。');return;}if(state.hp>=state.maxHp){say('HPは満タンだ。');return;}state.herb--;const h=18;state.hp=Math.min(state.maxHp,state.hp+h);say(`🧪 薬草を使った。HPが${h}回復！`);render();autoSave();}
+function save(){localStorage.setItem(SAVE_KEY,JSON.stringify(state));say('💾 セーブした！ この端末のブラウザに保存されます。');}
+function autoSave(){localStorage.setItem(SAVE_KEY,JSON.stringify(state));}
+function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY));if(s)state={...state,...s};}catch(e){}render();}
+function reset(){if(confirm('セーブデータを消して最初から始めますか？')){localStorage.removeItem(SAVE_KEY);location.reload();}}
+function help(){say('<b>遊び方</b><br>①村長に話す → ②東へ進み洞窟へ → ③奥のボスを倒す → ④村長に報告。草原と洞窟では敵が出現します。');}
+
+for(const b of document.querySelectorAll('[data-dir]')){const f=()=>{const d=b.dataset.dir;({up:()=>move(0,-1,'up'),down:()=>move(0,1,'down'),left:()=>move(-1,0,'left'),right:()=>move(1,0,'right')})[d]();};b.addEventListener('click',f);}
+interactBtn.onclick=interact;healBtn.onclick=useHerb;saveBtn.onclick=save;helpBtn.onclick=help;resetBtn.onclick=reset;
+atkBtn.onclick=actAttack;fireBtn.onclick=actFire;healMagicBtn.onclick=actHeal;runBtn.onclick=runAway;
+addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key))e.preventDefault();if(battle)return;
+ if(e.key==='ArrowUp'||e.key.toLowerCase()==='w')move(0,-1,'up');else if(e.key==='ArrowDown'||e.key.toLowerCase()==='s')move(0,1,'down');else if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a')move(-1,0,'left');else if(e.key==='ArrowRight'||e.key.toLowerCase()==='d')move(1,0,'right');else if(e.key===' ')interact();});
+
+load();
+})();
+</script>
+</body>
+</html>
