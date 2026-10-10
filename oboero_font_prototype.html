@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101426">
+<title>覚えろ。FONT — フォント記憶ゲーム</title>
+<style>
+:root{color-scheme:dark;--bg:#0c1020;--card:#222947;--card-line:#3c476c;--white:#f5f6ff;--muted:#9da8c6;--lime:#cbfa67;--purple:#a69dff;--red:#ff789a;--orange:#ffc46c}
+*{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100dvh;background:radial-gradient(ellipse at 50% -16%,#33366c 0,transparent 48%),linear-gradient(180deg,#12172d,#0b1020 76%);color:var(--white);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}button:focus-visible{outline:3px solid var(--lime);outline-offset:3px}.app{width:min(100%,590px);margin:0 auto;padding:clamp(14px,3.8vw,24px);padding-top:max(20px,env(safe-area-inset-top));padding-bottom:max(20px,env(safe-area-inset-bottom));min-height:100dvh;display:flex;flex-direction:column}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}.logo{font-weight:900;font-size:20px;letter-spacing:-.07em}.logo span{color:var(--lime)}.sound{background:#202844;border:1px solid #36415f;border-radius:13px;color:var(--muted);width:43px;height:43px;display:grid;place-items:center;font-size:19px}.screen{display:none;flex:1;flex-direction:column}.screen.active{display:flex}.menu{justify-content:center;gap:18px;padding-bottom:44px}.kicker{align-self:flex-start;color:var(--lime);font-weight:800;font-size:12px;letter-spacing:.17em}.hero-title{font-size:clamp(48px,12vw,77px);line-height:1.04;font-weight:950;letter-spacing:-.10em;margin:4px 0 0}.hero-title b{color:var(--lime);font-family:Georgia,"Hiragino Mincho ProN",serif;font-weight:800;font-style:italic}.hero-sub{color:var(--muted);line-height:1.85;font-size:15px;margin:0}.preview{position:relative;background:#171e37;border:1px solid #303c60;border-radius:22px;padding:16px;box-shadow:0 14px 35px #070a1655}.preview-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.preview-tile{display:grid;place-items:center;aspect-ratio:1;background:#273251;border:1px solid #415071;border-radius:11px;font-size:clamp(20px,7vw,38px);font-weight:800}.preview-tile.odd{font-family:Georgia,"Hiragino Mincho ProN",serif;font-weight:400;color:var(--lime);transform:rotate(-4deg);border-color:#78964e}.preview-tag{position:absolute;right:26px;bottom:-13px;padding:6px 12px;background:var(--lime);border-radius:99px;font-weight:900;color:#101426;font-size:12px;transform:rotate(-6deg)}.primary{background:var(--lime);border:0;color:#182027;border-radius:16px;font-weight:900;min-height:58px;box-shadow:0 7px 0 #7a9c36;letter-spacing:.025em;font-size:18px}.primary:active{transform:translateY(4px);box-shadow:0 3px 0 #7a9c36}.outline{background:#1a233e;border:1px solid #425077;color:var(--white);border-radius:13px;padding:12px;font-weight:700}.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mini-stats div{text-align:center;background:#151d35;border:1px solid #2c3654;border-radius:14px;padding:12px 6px}.mini-stats strong{display:block;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}.mini-stats small{color:var(--muted);font-size:10px}.game{padding-top:15px;gap:12px}.scorebar{display:flex;justify-content:space-between;align-items:center;gap:8px}.stat{min-width:80px}.stat small{color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.08em;display:block}.stat strong{font-size:24px;font-variant-numeric:tabular-nums;font-weight:900}.stat.right{text-align:right}.lives{color:var(--red);letter-spacing:3px;font-size:23px}.prompt{margin-top:4px;padding:16px;background:#19223d;border:1px solid #344064;border-radius:17px;display:flex;align-items:center;justify-content:space-between;gap:12px}.prompt h2{margin:0;font-size:20px;font-weight:900}.prompt p{font-size:12px;color:var(--muted);margin:5px 0 0}.phase-icon{width:47px;height:47px;border-radius:14px;background:#2a3559;display:grid;place-items:center;font-size:26px;flex:none}.timerbar{height:7px;border-radius:99px;background:#2c3654;overflow:hidden}.timerfill{width:100%;height:100%;background:var(--lime);border-radius:inherit;transition:background .2s}.timerline{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-weight:700;font-size:12px}.board{--cols:3;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:clamp(6px,1.9vw,10px);width:100%;max-width:470px;margin:5px auto 0}.tile{position:relative;display:grid;place-items:center;aspect-ratio:1;min-width:0;padding:0;border:1px solid var(--card-line);background:linear-gradient(150deg,#2b3455,#222946);border-radius:clamp(9px,2.4vw,15px);overflow:hidden;color:#f4f5ff;box-shadow:inset 0 1px 0 #ffffff16,0 5px 13px #02051016;user-select:none;-webkit-user-select:none;transition:border-color .13s,background .13s,transform .15s}.tile .letter{display:block;line-height:1;white-space:nowrap;font-size:var(--glyph-size,64px);transform-origin:50% 50%;font-synthesis:weight style}.tile .question{display:none;font-family:system-ui,sans-serif;font-size:clamp(24px,9vw,43px);font-weight:800;color:#7180a7}.tile.hidden .letter{display:none}.tile.hidden .question{display:block}.tile.hidden{background:linear-gradient(160deg,#252f4f,#1a2340);border-style:dashed}.tile.hidden:not(:disabled):active{transform:scale(.94)}.tile.correct{background:linear-gradient(155deg,#415a3a,#263c35);border:2px solid var(--lime)}.tile.incorrect{background:linear-gradient(155deg,#583547,#34253d);border:2px solid var(--red)}.tile.exposed{background:linear-gradient(155deg,#415a3a,#263c35);border:2px solid var(--lime)}.tile .mark{display:none;position:absolute;top:5px;right:7px;font-size:14px;font-weight:900}.tile.correct .mark,.tile.incorrect .mark,.tile.exposed .mark{display:block}.tile.correct .mark,.tile.exposed .mark{color:var(--lime)}.tile.incorrect .mark{color:var(--red)}.tile:disabled{cursor:default}.feedback{min-height:31px;margin:1px 0 0;text-align:center;color:var(--muted);font-size:14px;font-weight:800}.feedback.good{color:var(--lime)}.feedback.bad{color:var(--red)}.game-bottom{margin-top:auto;display:flex;align-items:center;justify-content:center;padding-top:10px;gap:10px}.smallbtn{border:1px solid #344363;background:#151d34;color:var(--muted);border-radius:11px;padding:11px 16px;font-size:13px;font-weight:800}.end{justify-content:center;gap:20px;padding-bottom:30px;text-align:center}.end-icon{font-size:56px}.end h1{font-size:42px;letter-spacing:-.07em;margin:0}.end p{color:var(--muted);margin:0}.result-points{font-weight:950;font-size:64px;color:var(--lime);line-height:1;font-variant-numeric:tabular-nums}.result-caption{color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.13em}.end-actions{display:grid;gap:14px}.newbest{color:var(--orange);font-weight:900;min-height:20px}.howto{color:var(--muted);font-size:12px;text-align:center;line-height:1.75}.help{border:1px solid #303c5b;background:#151d34;border-radius:15px;padding:13px 16px;text-align:left}.help summary{cursor:pointer;font-weight:800;font-size:13px}.help p{font-size:12px;color:var(--muted);line-height:1.7;margin:10px 0 0}@media(max-height:740px){.app{padding-top:12px;padding-bottom:12px}.game{gap:8px;padding-top:8px}.prompt{padding:11px}.prompt h2{font-size:18px}.board{max-width:min(385px,62dvh)}.menu{gap:13px;padding-bottom:12px}.hero-title{font-size:51px}.preview{padding:12px}}@media(max-width:360px){.app{padding:12px}.board{gap:6px}.tile{border-radius:9px}.prompt{padding:12px}.prompt h2{font-size:18px}.stat strong{font-size:21px}.mini-stats strong{font-size:18px}}@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar"><div class="logo">覚えろ。<span>FONT</span></div><button class="sound" id="soundBtn" aria-label="効果音のオン・オフ" title="効果音">♫</button></header>
+  <main id="menu" class="screen menu active">
+    <div class="kicker">A LITTLE DIFFERENCE, A BIG CHALLENGE.</div>
+    <h1 class="hero-title">その違い、<br><b>覚えろ。</b></h1>
+    <p class="hero-sub">同じ文字が9個。<br>ひとつだけ違うフォントの位置を覚えて、<br>隠れたあとにタップしよう。</p>
+    <div class="preview" aria-hidden="true"><div class="preview-grid" id="previewGrid"></div><div class="preview-tag">1つだけ、違う。</div></div>
+    <button class="primary" id="startBtn">ゲームスタート ▶</button>
+    <div class="mini-stats"><div><strong id="menuBest">0</strong><small>BEST SCORE</small></div><div><strong id="menuMax">0</strong><small>MAX ROUND</small></div><div><strong>3</strong><small>♥ LIFE</small></div></div>
+    <details class="help"><summary>遊び方を見る</summary><p>① 少しだけ表示される文字を観察。<br>② 1つだけ字体が違う位置を覚える。<br>③ 文字が「？」に変わったら、その場所をタップ！<br>正解で得点、3回間違えると終了。連続正解と速さで高得点を狙おう。</p></details>
+  </main>
+  <main id="game" class="screen game" aria-live="polite">
+    <div class="scorebar"><div class="stat"><small>SCORE</small><strong id="score">0</strong></div><div class="stat" style="text-align:center"><small>ROUND</small><strong id="round">01</strong></div><div class="stat right"><small>LIFE</small><strong id="lives" class="lives">♥♥♥</strong></div></div>
+    <section class="prompt"><div><h2 id="phaseTitle">違う文字を覚えろ！</h2><p id="phaseDesc">1つだけフォントが違うよ</p></div><div id="phaseIcon" class="phase-icon" aria-hidden="true">👀</div></section>
+    <div class="timerline"><span id="phaseLabel">記憶タイム</span><span id="countdown">3.0 秒</span></div><div class="timerbar"><div id="timerFill" class="timerfill"></div></div>
+    <div class="board" id="board" aria-label="文字の記憶ゲーム"></div>
+    <p id="feedback" class="feedback">どれが違うか、場所を覚えよう</p>
+    <div class="game-bottom"><button class="smallbtn" id="quitBtn">タイトルに戻る</button></div>
+  </main>
+  <main id="end" class="screen end"><div class="end-icon" id="endIcon">🏁</div><h1>ゲーム終了！</h1><p>今回のスコア</p><div class="result-points" id="finalScore">0</div><div class="newbest" id="newBest"></div><div class="mini-stats"><div><strong id="finalRound">0</strong><small>到達ラウンド</small></div><div><strong id="finalStreak">0</strong><small>最高コンボ</small></div><div><strong id="finalBest">0</strong><small>ベストスコア</small></div></div><div class="end-actions"><button id="retryBtn" class="primary">もう1回！ ↻</button><button id="homeBtn" class="outline">タイトルへ</button></div><div class="howto">記録はこのブラウザに保存されるよ。</div></main>
+</div>
+<script>
+'use strict';
+(()=>{
+ const $=id=>document.getElementById(id);
+ const screens=['menu','game','end'];
+ const KEY='oboeroFontPrototypeV1';
+ let records={best:0,max:0};
+ try{records={...records,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){}
+ let audioOn=true,audioContext=null;
+ let runId=0,raf=0,phase='idle',phaseStarted=0,phaseLength=0,pausedAt=0;
+ let round=1,score=0,lives=3,streak=0,maxStreak=0,correctIndex=-1,boardCount=9,glyph='あ';
+ let tiles=[],nextHandle=0;
+ const JP_SANS='"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans CJK JP",sans-serif';
+ const JP_SERIF='"Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif';
+ const styles={
+  sans:{fontFamily:JP_SANS,fontWeight:'700',fontStyle:'normal',transform:'none',letterSpacing:'0',WebkitTextStroke:'0px'},
+  serif:{fontFamily:JP_SERIF,fontWeight:'400',fontStyle:'normal',transform:'none',letterSpacing:'-.025em',WebkitTextStroke:'0px'},
+  heavy:{fontFamily:JP_SANS,fontWeight:'900',fontStyle:'normal',transform:'none',letterSpacing:'-.02em',WebkitTextStroke:'1.5px'},
+  light:{fontFamily:JP_SANS,fontWeight:'300',fontStyle:'normal',transform:'none',letterSpacing:'.01em',WebkitTextStroke:'0px'},
+  slant:{fontFamily:JP_SANS,fontWeight:'650',fontStyle:'italic',transform:'skew(-12deg)',letterSpacing:'0',WebkitTextStroke:'0px'},
+  wide:{fontFamily:JP_SANS,fontWeight:'700',fontStyle:'normal',transform:'scaleX(1.19)',letterSpacing:'.03em',WebkitTextStroke:'0px'},
+  narrow:{fontFamily:JP_SANS,fontWeight:'700',fontStyle:'normal',transform:'scaleX(.83)',letterSpacing:'-.01em',WebkitTextStroke:'0px'},
+  serifHeavy:{fontFamily:JP_SERIF,fontWeight:'900',fontStyle:'normal',transform:'none',letterSpacing:'-.025em',WebkitTextStroke:'1px'}
+ };
+ const glyphs=['あ','永','A','田','R','8','夢','B','3','星','g','心','Q','春','2','本','M','雨','5','花','S','0','力','9'];
+ const random=n=>Math.floor(Math.random()*n);
+ function show(id){screens.forEach(k=>$(k).classList.toggle('active',k===id));}
+ function save(){try{localStorage.setItem(KEY,JSON.stringify(records))}catch(e){}}
+ function updateRecords(){if(score>records.best)records.best=score;if(round>records.max)records.max=round;save()}
+ function menuData(){$('menuBest').textContent=records.best.toLocaleString('ja-JP');$('menuMax').textContent=records.max}
+ function sound(freq=660,dur=.08,type='sine'){
+  if(!audioOn)return;
+  try{audioContext ||=new (window.AudioContext||window.webkitAudioContext)();if(audioContext.state==='suspended')audioContext.resume();const o=audioContext.createOscillator(),g=audioContext.createGain();o.type=type;o.frequency.setValueAtTime(freq,audioContext.currentTime);g.gain.setValueAtTime(.09,audioContext.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+dur);o.connect(g);g.connect(audioContext.destination);o.start();o.stop(audioContext.currentTime+dur+.012)}catch(e){}
+ }
+ $('soundBtn').addEventListener('click',()=>{audioOn=!audioOn;$('soundBtn').textContent=audioOn?'♫':'♪̸';$('soundBtn').setAttribute('aria-pressed',String(audioOn));if(audioOn)sound()});
+ function fillPreview(){const host=$('previewGrid');for(let i=0;i<15;i++){let d=document.createElement('div');d.className='preview-tile'+(i===8?' odd':'');d.textContent='あ';host.appendChild(d)}}
+ function clearTimers(){runId++;cancelAnimationFrame(raf);clearTimeout(nextHandle);phase='idle';pausedAt=0;}
+ function startGame(){clearTimers();round=1;score=0;lives=3;streak=0;maxStreak=0;show('game');$('score').textContent='0';$('lives').textContent='♥♥♥';newRound()}
+ function pickPair(){
+   const easy=[['sans','serif'],['serif','heavy'],['sans','heavy'],['serif','sans'],['sans','slant']];
+   const middle=[['sans','light'],['sans','wide'],['sans','narrow'],['serif','serifHeavy'],['heavy','sans'],['sans','slant']];
+   const hard=[['sans','wide'],['sans','narrow'],['sans','light'],['serif','serifHeavy'],['heavy','sans'],['serif','sans']];
+   const pairs=round<=4?easy:round<=12?middle:hard;
+   const pair=pairs[random(pairs.length)];return Math.random()>.5?pair:[pair[1],pair[0]];
+ }
+ function glyphSize(){return boardCount===9?'clamp(39px, 14vw, 73px)':boardCount===16?'clamp(27px, 10vw, 57px)':'clamp(23px, 8vw, 44px)'}
+ function setFont(node,styleName){Object.assign(node.style,styles[styleName]);}
+ function newRound(){
+  phase='reveal'; $('round').textContent=String(round).padStart(2,'0');
+  boardCount=round>=21?25:round>=10?16:9;correctIndex=random(boardCount);
+  const [base,odd]=pickPair();glyph=glyphs[random(glyphs.length)];
+  const board=$('board');board.replaceChildren();board.style.setProperty('--cols',String(Math.sqrt(boardCount)));board.style.setProperty('--glyph-size',glyphSize());tiles=[];
+  for(let i=0;i<boardCount;i++){
+   const button=document.createElement('button');button.type='button';button.className='tile';button.disabled=true;button.setAttribute('aria-label',`マス ${i+1}`);
+   const letter=document.createElement('span');letter.className='letter';letter.textContent=glyph;letter.setAttribute('aria-hidden','true');setFont(letter,i===correctIndex?odd:base);
+   const q=document.createElement('span');q.className='question';q.textContent='?';q.setAttribute('aria-hidden','true');
+   const mark=document.createElement('span');mark.className='mark';mark.setAttribute('aria-hidden','true');
+   button.append(letter,q,mark);button.addEventListener('click',()=>choose(i));board.appendChild(button);tiles.push(button)
+  }
+  $('phaseTitle').textContent='違う文字を覚えろ！';$('phaseDesc').textContent='1つだけ字体が違う。その位置を記憶！';$('phaseIcon').textContent='👀';$('phaseLabel').textContent='記憶タイム';$('feedback').textContent='どれが違うか、場所を覚えよう';$('feedback').className='feedback';
+  const seconds=Math.max(1.15,3.6-(round-1)*.12);beginTimer('reveal',seconds);
+ }
+ function beginTimer(name,seconds){const token=++runId;phase=name;phaseLength=seconds*1000;phaseStarted=performance.now();const fill=$('timerFill');fill.style.width='100%';fill.style.background=name==='reveal'?'var(--lime)':'var(--purple)';
+  function tick(t){if(token!==runId)return;if(document.hidden){raf=requestAnimationFrame(tick);return}const remaining=Math.max(0,phaseLength-(t-phaseStarted));fill.style.width=(100*remaining/phaseLength)+'%';$('countdown').textContent=(remaining/1000).toFixed(1)+' 秒';if(remaining<=0){if(name==='reveal')hideBoard();else if(name==='answer')resolve(false,-1,true);return}raf=requestAnimationFrame(tick)}raf=requestAnimationFrame(tick)
+ }
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&phase!=='idle'){pausedAt=performance.now()}else if(pausedAt){phaseStarted+=performance.now()-pausedAt;pausedAt=0}});
+ function hideBoard(){tiles.forEach(t=>{t.classList.add('hidden');t.disabled=false});$('phaseTitle').textContent='どこだった？';$('phaseDesc').textContent='フォントが違ったマスをタップ！';$('phaseIcon').textContent='❔';$('phaseLabel').textContent='回答タイム';$('feedback').textContent='思い出して、1つ選ぼう';beginTimer('answer',Math.max(4.5,8.5-round*.13));sound(500,.055)}
+ function choose(i){if(phase!=='answer')return;resolve(i===correctIndex,i,false)}
+ function resolve(success,index,timedout){if(phase!=='answer')return;const timeLeft=Math.max(0,(phaseLength-(performance.now()-phaseStarted))/1000);phase='feedback';runId++;cancelAnimationFrame(raf);tiles.forEach((t,i)=>{t.disabled=true;t.classList.remove('hidden');if(i===correctIndex){t.classList.add(index===i?'correct':'exposed');t.querySelector('.mark').textContent='✓'}if(i===index&&i!==correctIndex){t.classList.add('incorrect');t.querySelector('.mark').textContent='×'}});
+   $('timerFill').style.width='0%';$('countdown').textContent=timedout?'時間切れ':'回答完了';
+   if(success){streak++;maxStreak=Math.max(streak,maxStreak);const add=100+Math.round(timeLeft*10)+Math.min(200,(streak-1)*20);score+=add;$('score').textContent=score.toLocaleString('ja-JP');$('feedback').textContent=`正解！ +${add}点${streak>=2?' 🔥 '+streak+'コンボ！':''}`;$('feedback').className='feedback good';$('phaseTitle').textContent='大正解！';$('phaseIcon').textContent='✨';sound(820,.10);setTimeout(()=>sound(1050,.11),100);}
+   else{lives--;streak=0;$('lives').textContent='♥'.repeat(lives)+'♡'.repeat(3-lives);$('feedback').textContent=timedout?'時間切れ！ 正解はここ！':'惜しい！ 正解はここ！';$('feedback').className='feedback bad';$('phaseTitle').textContent=timedout?'時間切れ！':'残念！';$('phaseIcon').textContent='💔';sound(250,.24,'triangle')}
+   updateRecords();nextHandle=setTimeout(()=>{if(lives<=0){gameOver();return}round++;updateRecords();newRound()},success?950:1400)
+ }
+ function gameOver(){clearTimers();$('finalScore').textContent=score.toLocaleString('ja-JP');$('finalRound').textContent=round;$('finalStreak').textContent=maxStreak;$('finalBest').textContent=records.best.toLocaleString('ja-JP');$('newBest').textContent=score>0&&score===records.best?'★ ベストスコア達成！ ★':'';$('endIcon').textContent=score>=2000?'🏆':'🏁';show('end')}
+ $('startBtn').addEventListener('click',startGame);$('retryBtn').addEventListener('click',startGame);
+ $('homeBtn').addEventListener('click',()=>{clearTimers();menuData();show('menu')});
+ $('quitBtn').addEventListener('click',()=>{clearTimers();menuData();show('menu')});
+ fillPreview();menuData();
+})();
+</script>
+</body>
+</html>
